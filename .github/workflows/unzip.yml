@@ -1,1 +1,30 @@
+name: Auto Unzip File
 
+on:
+  push:
+    paths:
+      - '**.zip'
+  workflow_dispatch:
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unzip dan Commit Hasil Ekstrak
+        run: |
+          sudo apt-get install -y unzip
+
+          for zip_file in *.zip; do
+            echo "Mengekstrak $zip_file ..."
+            unzip -o "$zip_file" -d ./
+            rm "$zip_file"
+          done
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+          git commit -m "Otomatis ekstrak file Zip" || echo "Tidak ada perubahan"
+          git push origin main
