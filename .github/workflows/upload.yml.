@@ -1,0 +1,31 @@
+name: Extract Zip and Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload and Extract Zip
+        run: |
+          # Menerima file yang diupload via API
+          echo "Menunggu file zip di-upload..."
+          
+          # Ekstrak ZIP (asumsikan namanya workspace.zip)
+          unzip workspace.zip -d temp_extract
+          
+          # Pindahkan isi folder ke root repositori
+          cp -r temp_extract/* .
+          
+          # Bersihkan file sisa (opsional)
+          rm -rf temp_extract
+          rm -f workspace.zip
+          
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Extract and upload files from ZIP [skip ci]" || echo "No changes to commit"
+          git push
